@@ -1,0 +1,66 @@
+{
+  "$schema": "https://raw.githubusercontent.com/firebase/firebase-tools/master/schema/firebase-blueprint.json",
+  "entities": {
+    "games": {
+      "title": "Games Catalog",
+      "description": "Public catalog of browser games playable on OnlineGameNest",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "slug": { "type": "string" },
+        "description": { "type": "string" },
+        "category": { "type": "string" },
+        "thumbnail": { "type": "string" },
+        "plays": { "type": "number" },
+        "rating": { "type": "number" },
+        "ratingCount": { "type": "number" },
+        "isFeatured": { "type": "boolean" },
+        "isPopular": { "type": "boolean" },
+        "isNew": { "type": "boolean" },
+        "developer": { "type": "string" },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "instructions": { "type": "string" }
+      },
+      "required": ["title", "slug", "category"]
+    },
+    "highScores": {
+      "title": "High Scores",
+      "description": "Leaderboards and high scores submitted by players for games",
+      "type": "object",
+      "properties": {
+        "gameSlug": { "type": "string" },
+        "playerName": { "type": "string" },
+        "score": { "type": "number" },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["gameSlug", "playerName", "score"]
+    },
+    "contacts": {
+      "title": "Contact Messages",
+      "description": "Inquiries, developer submissions, and feedback",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "type": { "type": "string" },
+        "message": { "type": "string" },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["name", "email", "message"]
+    }
+  },
+  "firestore": {
+    "/games/{gameId}": {
+      "entity": "games",
+      "description": "Games catalog documents. Read-accessible to everyone, writable only by admins."
+    },
+    "/highScores/{scoreId}": {
+      "entity": "highScores",
+      "description": "High scores documents. Readable by everyone, creatable by anyone."
+    },
+    "/contacts/{contactId}": {
+      "entity": "contacts",
+      "description": "User feedback messages. Creatable by anyone, readable only by admins."
+    }
+  }
+}

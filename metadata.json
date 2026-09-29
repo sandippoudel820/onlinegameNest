@@ -1,0 +1,6 @@
+{
+  "name": "GameNest - Play Free Online Browser Games",
+  "description": "Discover and play hundreds of free instant HTML5 browser games on GameNest with no downloads or installs. Action, puzzles, arcade, sports, and more.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

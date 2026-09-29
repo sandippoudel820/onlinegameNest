@@ -1,0 +1,187 @@
+@import "tailwindcss";
+
+/* Cross-platform Touch & Responsive Gameplay Rules for iOS, Android, macOS & Windows */
+html, body {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: contain;
+}
+
+canvas {
+  touch-action: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Prevent accidental iOS double-tap zoom during rapid button pressing */
+button {
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Hide scrollbars on sleek containers */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Light Theme Styling Rules */
+html.light,
+html.light body,
+html.light #root {
+  background-color: #f1f5f9;
+  color: #0f172a;
+}
+
+/* Light Header */
+html.light header {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+}
+
+html.light header .text-white {
+  color: #0f172a !important;
+}
+
+html.light header .text-slate-300,
+html.light header .text-slate-400 {
+  color: #475569 !important;
+}
+
+html.light header nav button:not(.text-cyan-400) {
+  color: #475569 !important;
+}
+
+html.light header nav button:not(.text-cyan-400):hover {
+  color: #0f172a !important;
+  background-color: #f1f5f9 !important;
+}
+
+/* Light Game Cards */
+html.light .group.bg-slate-900\/90,
+html.light .group.bg-slate-900 {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+}
+
+html.light .group.bg-slate-900\/90:hover,
+html.light .group.bg-slate-900:hover {
+  border-color: #06b6d4 !important;
+  box-shadow: 0 10px 15px -3px rgba(6, 182, 212, 0.15) !important;
+}
+
+html.light .group .text-slate-100 {
+  color: #0f172a !important;
+}
+
+html.light .group .text-slate-400 {
+  color: #64748b !important;
+}
+
+html.light .group .border-slate-800\/80 {
+  border-color: #f1f5f9 !important;
+}
+
+/* Light Page Cards & Panels */
+html.light .bg-slate-900\/90,
+html.light .bg-slate-900\/80,
+html.light .bg-slate-900\/60,
+html.light .bg-slate-900\/50,
+html.light .bg-slate-900 {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+html.light .bg-slate-950\/60,
+html.light .bg-slate-950\/80,
+html.light .bg-slate-950:not(canvas):not(.bg-black) {
+  background-color: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+}
+
+html.light .border-slate-800,
+html.light .border-slate-800\/80,
+html.light .border-slate-800\/90,
+html.light .border-slate-700,
+html.light .border-slate-700\/80 {
+  border-color: #e2e8f0 !important;
+}
+
+html.light h1:not(.text-cyan-400):not(.text-white),
+html.light h2:not(.text-cyan-400):not(.text-white),
+html.light h3:not(.text-cyan-400):not(.text-white) {
+  color: #0f172a !important;
+}
+
+html.light .text-white {
+  color: #0f172a !important;
+}
+
+/* Preserve white text inside dark game player canvas containers & buttons */
+html.light .bg-gradient-to-r .text-white,
+html.light .bg-gradient-to-tr .text-white,
+html.light .bg-cyan-500 .text-white,
+html.light .bg-indigo-600 .text-white,
+html.light .bg-rose-500 .text-white,
+html.light .bg-emerald-500 .text-white,
+html.light button.bg-cyan-500,
+html.light button.bg-cyan-600,
+html.light .bg-slate-950 .text-white,
+html.light .bg-black .text-white {
+  color: #ffffff !important;
+}
+
+html.light .text-slate-200,
+html.light .text-slate-300 {
+  color: #334155 !important;
+}
+
+html.light .text-slate-400 {
+  color: #64748b !important;
+}
+
+html.light .text-slate-500 {
+  color: #64748b !important;
+}
+
+/* Light Inputs & Search */
+html.light input[type="text"],
+html.light input[type="email"],
+html.light select,
+html.light textarea {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html.light input::placeholder,
+html.light textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* Light Footer */
+html.light footer {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+html.light footer .text-slate-300,
+html.light footer .text-slate-400,
+html.light footer .text-slate-500 {
+  color: #64748b !important;
+}
+
+/* Light Pills */
+html.light .category-pill-inactive {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  color: #475569 !important;
+}
+
