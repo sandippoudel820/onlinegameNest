@@ -6,6 +6,17 @@ import { Puzzle2048 } from './builtin/Puzzle2048';
 import { BrickBreaker } from './builtin/BrickBreaker';
 import { TowerStack } from './builtin/TowerStack';
 import { MemoryMatrix } from './builtin/MemoryMatrix';
+import { SuperPlatformer } from './builtin/SuperPlatformer';
+import { StoneBalance } from './builtin/StoneBalance';
+import { FlappyBird } from './builtin/FlappyBird';
+import { TapPlane } from './builtin/TapPlane';
+import { ContraGame } from './builtin/ContraGame';
+import { LastPlatform } from './builtin/LastPlatform';
+import { QuickDraw } from './builtin/QuickDraw';
+import { InfiniteRace } from './builtin/InfiniteRace';
+import { MiniArena } from './builtin/MiniArena';
+import { CoinRush } from './builtin/CoinRush';
+import { BombTag } from './builtin/BombTag';
 import { GenericIframePlayer } from './GenericIframePlayer';
 import { sound } from '../../utils/audio';
 import {
@@ -110,6 +121,28 @@ export const GamePlayer: React.FC<Props> = ({ game, onPlayIncrement }) => {
           return <TowerStack key={reloadKey} />;
         case 'memory-matrix':
           return <MemoryMatrix key={reloadKey} />;
+        case 'super-platformer':
+          return <SuperPlatformer key={reloadKey} />;
+        case 'stone-balance':
+          return <StoneBalance key={reloadKey} />;
+        case 'flappy-bird':
+          return <TapPlane key={reloadKey} />;
+        case 'tap-plane':
+          return <TapPlane key={reloadKey} />;
+        case 'contra':
+          return <ContraGame key={reloadKey} />;
+        case 'last-platform':
+          return <LastPlatform key={reloadKey} />;
+        case 'quick-draw':
+          return <QuickDraw key={reloadKey} />;
+        case 'infinite-race':
+          return <InfiniteRace key={reloadKey} />;
+        case 'mini-arena':
+          return <MiniArena key={reloadKey} />;
+        case 'coin-rush':
+          return <CoinRush key={reloadKey} />;
+        case 'bomb-tag':
+          return <BombTag key={reloadKey} />;
         default:
           return <CyberSnake key={reloadKey} />;
       }

@@ -13,6 +13,7 @@ export const CyberSnake: React.FC<Props> = ({ onScoreUpdate }) => {
     return parseInt(localStorage.getItem('gamenest_snake_highscore') || '0', 10);
   });
   const [gameState, setGameState] = useState<'idle' | 'playing' | 'paused' | 'gameover'>('idle');
+  const [activePowerRemaining, setActivePowerRemaining] = useState<number>(0);
 
   const snakeRef = useRef<{ x: number; y: number }[]>([
     { x: 10, y: 10 },
@@ -22,6 +23,9 @@ export const CyberSnake: React.FC<Props> = ({ onScoreUpdate }) => {
   const dirRef = useRef<{ x: number; y: number }>({ x: 1, y: 0 });
   const nextDirRef = useRef<{ x: number; y: number }>({ x: 1, y: 0 });
   const foodRef = useRef<{ x: number; y: number; type: 'normal' | 'bonus' }>({ x: 15, y: 10, type: 'normal' });
+  const powerOrbRef = useRef<{ x: number; y: number; spawnTime: number; duration: number } | null>(null);
+  const activePowerUntilRef = useRef<number>(0);
+  const nextPowerSpawnScoreRef = useRef<number>(30);
   const scoreRef = useRef(0);
   const gameLoopRef = useRef<number | null>(null);
   const lastTimeRef = useRef<number>(0);
@@ -43,6 +47,26 @@ export const CyberSnake: React.FC<Props> = ({ onScoreUpdate }) => {
     foodRef.current = { x: newX, y: newY, type: isBonus ? 'bonus' : 'normal' };
   }, [GRID_SIZE]);
 
+  const spawnPowerOrb = useCallback((snake: { x: number; y: number }[]) => {
+    let newX = 0;
+    let newY = 0;
+    let collision = true;
+    while (collision) {
+      newX = Math.floor(Math.random() * GRID_SIZE);
+      newY = Math.floor(Math.random() * GRID_SIZE);
+      // eslint-disable-next-line no-loop-func
+      collision =
+        snake.some((seg) => seg.x === newX && seg.y === newY) ||
+        (foodRef.current.x === newX && foodRef.current.y === newY);
+    }
+    powerOrbRef.current = {
+      x: newX,
+      y: newY,
+      spawnTime: performance.now(),
+      duration: 3500, // Exists on board for only 3.5 seconds!
+    };
+  }, [GRID_SIZE]);
+
   const resetGame = useCallback(() => {
     snakeRef.current = [
       { x: 10, y: 10 },
@@ -53,6 +77,10 @@ export const CyberSnake: React.FC<Props> = ({ onScoreUpdate }) => {
     nextDirRef.current = { x: 1, y: 0 };
     scoreRef.current = 0;
     speedRef.current = 110;
+    powerOrbRef.current = null;
+    activePowerUntilRef.current = 0;
+    nextPowerSpawnScoreRef.current = 15; // Spawns after just 1-2 foods!
+    setActivePowerRemaining(0);
     setScore(0);
     spawnFood(snakeRef.current);
     setGameState('playing');
@@ -86,21 +114,67 @@ export const CyberSnake: React.FC<Props> = ({ onScoreUpdate }) => {
 
         // Check boundary collision
         if (head.x < 0 || head.x >= GRID_SIZE || head.y < 0 || head.y >= GRID_SIZE) {
-          gameOver();
-          return;
+          if (currentTime < activePowerUntilRef.current) {
+            // Super Power Shield: Wrap around screen boundaries safely!
+            if (head.x < 0) head.x = GRID_SIZE - 1;
+            else if (head.x >= GRID_SIZE) head.x = 0;
+            if (head.y < 0) head.y = GRID_SIZE - 1;
+            else if (head.y >= GRID_SIZE) head.y = 0;
+            sound.playBounce();
+          } else {
+            gameOver();
+            return;
+          }
         }
 
         // Check self collision
         if (snakeRef.current.some((seg) => seg.x === head.x && seg.y === head.y)) {
-          gameOver();
-          return;
+          if (currentTime < activePowerUntilRef.current) {
+            // Invincible during super power: harmless ghost pass through!
+            sound.playBounce();
+          } else {
+            gameOver();
+            return;
+          }
+        }
+
+        // Check power orb expiration (lasts only 3.5 seconds on field!)
+        if (
+          powerOrbRef.current &&
+          currentTime - powerOrbRef.current.spawnTime > powerOrbRef.current.duration
+        ) {
+          powerOrbRef.current = null;
+        }
+
+        // Check power orb collision
+        if (
+          powerOrbRef.current &&
+          head.x === powerOrbRef.current.x &&
+          head.y === powerOrbRef.current.y
+        ) {
+          scoreRef.current += 100; // Extra score!
+          activePowerUntilRef.current = currentTime + 3000; // 3 seconds of super power!
+          setScore(scoreRef.current);
+          onScoreUpdate?.(scoreRef.current);
+          sound.playZenChime();
+          sound.playCoin();
+          powerOrbRef.current = null;
+
+          if (scoreRef.current > highScore) {
+            setHighScore(scoreRef.current);
+            localStorage.setItem('gamenest_snake_highscore', scoreRef.current.toString());
+          }
         }
 
         const newSnake = [head, ...snakeRef.current];
 
         // Check food collision
         if (head.x === foodRef.current.x && head.y === foodRef.current.y) {
-          const points = foodRef.current.type === 'bonus' ? 25 : 10;
+          let points = foodRef.current.type === 'bonus' ? 25 : 10;
+          // Double score when power active
+          if (currentTime < activePowerUntilRef.current) {
+            points *= 2;
+          }
           scoreRef.current += points;
           setScore(scoreRef.current);
           onScoreUpdate?.(scoreRef.current);
@@ -111,6 +185,12 @@ export const CyberSnake: React.FC<Props> = ({ onScoreUpdate }) => {
             localStorage.setItem('gamenest_snake_highscore', scoreRef.current.toString());
           }
 
+          // Spawn timed power orb periodically
+          if (scoreRef.current >= nextPowerSpawnScoreRef.current && !powerOrbRef.current) {
+            spawnPowerOrb(newSnake);
+            nextPowerSpawnScoreRef.current += 25;
+          }
+
           // speed up slightly
           speedRef.current = Math.max(65, 110 - Math.floor(scoreRef.current / 30) * 4);
           spawnFood(newSnake);
@@ -119,6 +199,10 @@ export const CyberSnake: React.FC<Props> = ({ onScoreUpdate }) => {
         }
 
         snakeRef.current = newSnake;
+
+        // Update active power timer state
+        const powerLeft = Math.max(0, activePowerUntilRef.current - currentTime);
+        setActivePowerRemaining(powerLeft > 0 ? Number((powerLeft / 1000).toFixed(1)) : 0);
       }
 
       // Draw
@@ -163,6 +247,42 @@ export const CyberSnake: React.FC<Props> = ({ onScoreUpdate }) => {
           ctx.fill();
           ctx.shadowBlur = 0;
 
+          // Draw Timed Power Orb (if active on board)
+          const orb = powerOrbRef.current;
+          if (orb) {
+            const ox = orb.x * cellSize + cellSize / 2;
+            const oy = orb.y * cellSize + cellSize / 2;
+            const timeLeft = Math.max(0, orb.duration - (currentTime - orb.spawnTime));
+            const secondsLeft = Math.ceil(timeLeft / 1000);
+            const pulse = 1 + Math.sin(currentTime * 0.015) * 0.15;
+
+            // Pulsing golden aura
+            ctx.shadowBlur = 22;
+            ctx.shadowColor = '#eab308';
+            ctx.strokeStyle = '#facc15';
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            ctx.arc(ox, oy, (cellSize / 2) * pulse, 0, Math.PI * 2);
+            ctx.stroke();
+
+            // Inner Orb
+            ctx.fillStyle = '#f59e0b';
+            ctx.beginPath();
+            ctx.arc(ox, oy, (cellSize / 2) * 0.65, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Countdown text on orb
+            ctx.shadowBlur = 0;
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 10px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(`${secondsLeft}s`, ox, oy);
+          }
+
+          // Is Super Power currently active?
+          const isPowerActive = currentTime < activePowerUntilRef.current;
+
           // Draw Snake
           snakeRef.current.forEach((seg, index) => {
             const isHead = index === 0;
@@ -170,9 +290,18 @@ export const CyberSnake: React.FC<Props> = ({ onScoreUpdate }) => {
             const sy = seg.y * cellSize;
             const pad = 1.5;
 
-            ctx.shadowBlur = isHead ? 15 : 6;
-            ctx.shadowColor = isHead ? '#06b6d4' : '#3b82f6';
-            ctx.fillStyle = isHead ? '#22d3ee' : index % 2 === 0 ? '#38bdf8' : '#2563eb';
+            if (isPowerActive) {
+              // Rainbow glowing neon snake when powered up!
+              ctx.shadowBlur = isHead ? 20 : 10;
+              ctx.shadowColor = '#facc15';
+              ctx.fillStyle = isHead
+                ? '#facc15'
+                : `hsl(${(index * 25 + currentTime * 0.3) % 360}, 100%, 65%)`;
+            } else {
+              ctx.shadowBlur = isHead ? 15 : 6;
+              ctx.shadowColor = isHead ? '#06b6d4' : '#3b82f6';
+              ctx.fillStyle = isHead ? '#22d3ee' : index % 2 === 0 ? '#38bdf8' : '#2563eb';
+            }
 
             // Rounded rectangle
             const r = isHead ? 6 : 4;
@@ -275,30 +404,81 @@ export const CyberSnake: React.FC<Props> = ({ onScoreUpdate }) => {
     if (direction === 'right' && x !== -1) nextDirRef.current = { x: 1, y: 0 };
   };
 
-  // Direct swipe detection on canvas for iOS & Android
-  const touchStartPos = useRef<{ x: number; y: number } | null>(null);
-
-  const handleCanvasTouchStart = (e: React.TouchEvent<HTMLCanvasElement>) => {
+  // Steer snake towards the touched coordinates
+  const steerTowardsCoord = useCallback((clientX: number, clientY: number) => {
     sound.unlockMobileAudio();
-    const touch = e.touches[0];
-    touchStartPos.current = { x: touch.clientX, y: touch.clientY };
+    if (gameState !== 'playing') {
+      resetGame();
+      return;
+    }
+
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const cellSize = rect.width / GRID_SIZE;
+
+    // Calculate touch position on grid
+    const touchGridX = (clientX - rect.left) / cellSize;
+    const touchGridY = (clientY - rect.top) / cellSize;
+
+    const head = snakeRef.current[0];
+    if (!head) return;
+
+    const dx = touchGridX - (head.x + 0.5);
+    const dy = touchGridY - (head.y + 0.5);
+    const { x, y } = dirRef.current;
+
+    // Move in the primary direction towards touch
+    if (Math.abs(dx) >= Math.abs(dy)) {
+      if (dx > 0.3 && x !== -1) {
+        nextDirRef.current = { x: 1, y: 0 };
+      } else if (dx < -0.3 && x !== 1) {
+        nextDirRef.current = { x: -1, y: 0 };
+      } else if (dy > 0.3 && y !== -1) {
+        nextDirRef.current = { x: 0, y: 1 };
+      } else if (dy < -0.3 && y !== 1) {
+        nextDirRef.current = { x: 0, y: -1 };
+      }
+    } else {
+      if (dy > 0.3 && y !== -1) {
+        nextDirRef.current = { x: 0, y: 1 };
+      } else if (dy < -0.3 && y !== 1) {
+        nextDirRef.current = { x: 0, y: -1 };
+      } else if (dx > 0.3 && x !== -1) {
+        nextDirRef.current = { x: 1, y: 0 };
+      } else if (dx < -0.3 && x !== 1) {
+        nextDirRef.current = { x: -1, y: 0 };
+      }
+    }
+  }, [gameState, resetGame, GRID_SIZE]);
+
+  const isTouchingRef = useRef(false);
+
+  const handleCanvasPointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    isTouchingRef.current = true;
+    steerTowardsCoord(e.clientX, e.clientY);
   };
 
-  const handleCanvasTouchEnd = (e: React.TouchEvent<HTMLCanvasElement>) => {
-    if (!touchStartPos.current) return;
-    const touch = e.changedTouches[0];
-    const dx = touch.clientX - touchStartPos.current.x;
-    const dy = touch.clientY - touchStartPos.current.y;
-    touchStartPos.current = null;
+  const handleCanvasPointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    if (!isTouchingRef.current) return;
+    steerTowardsCoord(e.clientX, e.clientY);
+  };
 
-    if (Math.abs(dx) > 20 || Math.abs(dy) > 20) {
-      if (Math.abs(dx) > Math.abs(dy)) {
-        handleDpad(dx > 0 ? 'right' : 'left');
-      } else {
-        handleDpad(dy > 0 ? 'down' : 'up');
-      }
-    } else if (gameState !== 'playing') {
-      resetGame();
+  const handleCanvasPointerUp = () => {
+    isTouchingRef.current = false;
+  };
+
+  const handleCanvasTouchStart = (e: React.TouchEvent<HTMLCanvasElement>) => {
+    if (e.touches.length > 0) {
+      const touch = e.touches[0];
+      steerTowardsCoord(touch.clientX, touch.clientY);
+    }
+  };
+
+  const handleCanvasTouchMove = (e: React.TouchEvent<HTMLCanvasElement>) => {
+    if (e.touches.length > 0) {
+      const touch = e.touches[0];
+      steerTowardsCoord(touch.clientX, touch.clientY);
     }
   };
 
@@ -310,6 +490,14 @@ export const CyberSnake: React.FC<Props> = ({ onScoreUpdate }) => {
           <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Score</span>
           <span className="text-xl font-bold font-mono text-cyan-400">{score}</span>
         </div>
+
+        {activePowerRemaining > 0 && (
+          <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-400/60 text-amber-300 font-extrabold text-[11px] animate-pulse shadow-lg shadow-amber-500/20">
+            <span>⚡ 2X POWER:</span>
+            <span className="font-mono text-white">{activePowerRemaining}s</span>
+          </div>
+        )}
+
         <div className="flex items-center gap-1.5 text-amber-400">
           <Trophy className="w-4 h-4" />
           <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">High:</span>
@@ -349,9 +537,13 @@ export const CyberSnake: React.FC<Props> = ({ onScoreUpdate }) => {
           ref={canvasRef}
           width={500}
           height={500}
+          onPointerDown={handleCanvasPointerDown}
+          onPointerMove={handleCanvasPointerMove}
+          onPointerUp={handleCanvasPointerUp}
+          onPointerCancel={handleCanvasPointerUp}
           onTouchStart={handleCanvasTouchStart}
-          onTouchEnd={handleCanvasTouchEnd}
-          className="w-full h-full block cursor-pointer"
+          onTouchMove={handleCanvasTouchMove}
+          className="w-full h-full block cursor-pointer touch-none select-none"
         />
 
         {/* Start / Game Over Overlay */}

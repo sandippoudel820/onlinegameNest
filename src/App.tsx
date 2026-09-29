@@ -23,13 +23,23 @@ function AppContent() {
   const { theme } = useTheme();
   // Games Catalog State
   const [games, setGames] = useState<Game[]>(() => {
-    const saved = localStorage.getItem('gamenest_catalog');
+    const saved = localStorage.getItem('gamenest_catalog_v3');
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          // Merge so initial games always receive fresh thumbnails, descriptions, and engines
+          const customGames = parsed.filter(
+            (p: Game) => !INITIAL_GAMES.some((ig) => ig.id === p.id)
+          );
+          return [...INITIAL_GAMES, ...customGames];
+        }
       } catch {}
     }
+    try {
+      localStorage.removeItem('gamenest_catalog');
+      localStorage.removeItem('gamenest_catalog_v2');
+    } catch {}
     return INITIAL_GAMES;
   });
 
@@ -105,7 +115,7 @@ function AppContent() {
 
   // Save games whenever catalog updates
   useEffect(() => {
-    localStorage.setItem('gamenest_catalog', JSON.stringify(games));
+    localStorage.setItem('gamenest_catalog_v3', JSON.stringify(games));
   }, [games]);
 
   // Save favorites
@@ -133,7 +143,7 @@ function AppContent() {
   // Update SEO dynamically whenever route or selected game changes
   useEffect(() => {
     if (page === 'game' && param) {
-      const g = games.find((item) => item.slug === param);
+      const g = games.find((item) => item.slug === param || item.legacySlug === param || item.id === param);
       if (g) {
         updatePageSeo({
           title: `Play ${g.title} Free Online - OnlineGameNest`,
@@ -231,7 +241,7 @@ function AppContent() {
   // Render current page component
   const renderPage = () => {
     if (page === 'game') {
-      const currentGame = games.find((g) => g.slug === param);
+      const currentGame = games.find((g) => g.slug === param || g.legacySlug === param || g.id === param);
       if (currentGame) {
         return (
           <GameDetailPage
@@ -335,7 +345,7 @@ function AppContent() {
     <div
       className={`min-h-screen flex flex-col font-sans transition-colors duration-200 ${
         theme === 'light'
-          ? 'bg-[#f1f5f9] text-slate-900 selection:bg-cyan-500 selection:text-white'
+          ? 'bg-slate-50 text-slate-900 selection:bg-cyan-500 selection:text-white'
           : 'bg-[#0b0e14] text-slate-100 selection:bg-cyan-500 selection:text-slate-950'
       }`}
     >

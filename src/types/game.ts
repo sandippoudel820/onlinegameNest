@@ -2,13 +2,32 @@ export interface Game {
   id: string;
   title: string;
   slug: string;
+  legacySlug?: string;
   description: string;
   instructions: string;
   thumbnail: string;
   category: GameCategory;
   tags: string[];
   engineType: 'builtin' | 'iframe';
-  builtinId?: 'cyber-snake' | 'space-blaster' | '2048-pulse' | 'brick-breaker' | 'tower-stack' | 'color-connect' | 'memory-matrix';
+  builtinId?:
+    | 'cyber-snake'
+    | 'space-blaster'
+    | '2048-pulse'
+    | 'brick-breaker'
+    | 'tower-stack'
+    | 'color-connect'
+    | 'memory-matrix'
+    | 'super-platformer'
+    | 'stone-balance'
+    | 'flappy-bird'
+    | 'tap-plane'
+    | 'contra'
+    | 'last-platform'
+    | 'quick-draw'
+    | 'infinite-race'
+    | 'mini-arena'
+    | 'coin-rush'
+    | 'bomb-tag';
   gameUrl?: string;
   controls: { [action: string]: string };
   releaseDate: string;

@@ -74,7 +74,7 @@ export const Header: React.FC<Props> = ({
   };
 
   return (
-    <header className="sticky top-0 z-40 w-full bg-[#0a0d14]/90 backdrop-blur-md border-b border-slate-800/80">
+    <header className="sticky top-0 z-40 w-full bg-white/95 dark:bg-[#0a0d14]/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800/80 shadow-sm transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
         {/* Brand Logo */}
         <div
@@ -89,11 +89,11 @@ export const Header: React.FC<Props> = ({
           </div>
           <div className="flex flex-col">
             <div className="flex items-center gap-1">
-              <span className="text-xl font-black tracking-tight text-white group-hover:text-cyan-400 transition-colors">
-                Online<span className="text-cyan-400">GameNest</span>
+              <span className="text-xl font-black tracking-tight text-slate-900 dark:text-white group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors">
+                Online<span className="text-cyan-500">GameNest</span>
               </span>
             </div>
-            <span className="text-[10px] text-slate-400 -mt-1 hidden sm:block">
+            <span className="text-[10px] text-slate-500 dark:text-slate-400 -mt-1 hidden sm:block">
               Free Instant Browser Games
             </span>
           </div>
@@ -104,18 +104,18 @@ export const Header: React.FC<Props> = ({
           <form onSubmit={handleSearchSubmit} className="relative">
             <input
               type="text"
-              placeholder="Search 1,000+ games, categories, tags..."
+              placeholder="Search games, categories, tags..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onFocus={() => setIsSearchFocused(true)}
-              className="w-full bg-slate-900/90 border border-slate-800 focus:border-cyan-500/80 rounded-xl py-2 pl-10 pr-10 text-xs text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-cyan-500/50 transition-all"
+              className="w-full bg-slate-50 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 focus:border-cyan-500 rounded-xl py-2 pl-10 pr-10 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-cyan-500 transition-all"
             />
-            <Search className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <Search className="w-4 h-4 text-slate-400 dark:text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white text-xs"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 dark:hover:text-white text-xs"
               >
                 ✕
               </button>
@@ -124,7 +124,7 @@ export const Header: React.FC<Props> = ({
 
           {/* Autocomplete Dropdown */}
           {isSearchFocused && searchQuery.trim() && (
-            <div className="absolute top-full left-0 right-0 mt-2 bg-slate-900/95 backdrop-blur-xl border border-slate-800 rounded-xl shadow-2xl overflow-hidden z-50 animate-scale-in">
+            <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-slate-900/95 backdrop-blur-xl border border-slate-200 dark:border-slate-800 rounded-xl shadow-2xl overflow-hidden z-50 animate-scale-in">
               {suggestions.length > 0 ? (
                 <div className="py-2">
                   <div className="px-3 py-1 text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
@@ -138,7 +138,7 @@ export const Header: React.FC<Props> = ({
                         setIsSearchFocused(false);
                         setSearchQuery('');
                       }}
-                      className="px-3 py-2 hover:bg-slate-800/80 flex items-center gap-3 cursor-pointer transition"
+                      className="px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-800/80 flex items-center gap-3 cursor-pointer transition"
                     >
                       <img
                         src={game.thumbnail}
@@ -146,10 +146,10 @@ export const Header: React.FC<Props> = ({
                         className="w-9 h-7 object-cover rounded"
                       />
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs font-semibold text-slate-200 truncate">
+                        <p className="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate">
                           {game.title}
                         </p>
-                        <span className="text-[10px] text-cyan-400 font-mono">
+                        <span className="text-[10px] text-cyan-600 dark:text-cyan-400 font-mono">
                           {game.category}
                         </span>
                       </div>
@@ -157,7 +157,7 @@ export const Header: React.FC<Props> = ({
                   ))}
                   <button
                     onClick={handleSearchSubmit}
-                    className="w-full text-center py-2 text-xs font-semibold text-cyan-400 hover:bg-slate-800/50 border-t border-slate-800 mt-1"
+                    className="w-full text-center py-2 text-xs font-semibold text-cyan-600 dark:text-cyan-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800 mt-1"
                   >
                     View all results for &quot;{searchQuery}&quot;
                   </button>
@@ -172,13 +172,13 @@ export const Header: React.FC<Props> = ({
         </div>
 
         {/* Desktop Navigation Links */}
-        <nav className="hidden lg:flex items-center gap-1 text-sm font-medium text-slate-300">
+        <nav className="hidden lg:flex items-center gap-1 text-sm font-medium text-slate-600 dark:text-slate-300">
           <button
             onClick={() => onNavigate('home')}
             className={`px-3 py-1.5 rounded-lg transition ${
               currentRoute === 'home'
-                ? 'text-cyan-400 bg-cyan-500/10 font-bold'
-                : 'hover:text-white hover:bg-slate-900'
+                ? 'text-cyan-600 dark:text-cyan-400 bg-cyan-50 dark:bg-cyan-500/10 font-bold'
+                : 'hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-900'
             }`}
           >
             Home
@@ -187,8 +187,8 @@ export const Header: React.FC<Props> = ({
             onClick={() => onNavigate('all-games')}
             className={`px-3 py-1.5 rounded-lg transition ${
               currentRoute === 'all-games'
-                ? 'text-cyan-400 bg-cyan-500/10 font-bold'
-                : 'hover:text-white hover:bg-slate-900'
+                ? 'text-cyan-600 dark:text-cyan-400 bg-cyan-50 dark:bg-cyan-500/10 font-bold'
+                : 'hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-900'
             }`}
           >
             All Games
@@ -197,8 +197,8 @@ export const Header: React.FC<Props> = ({
             onClick={() => onNavigate('categories')}
             className={`px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 ${
               currentRoute === 'categories'
-                ? 'text-cyan-400 bg-cyan-500/10 font-bold'
-                : 'hover:text-white hover:bg-slate-900'
+                ? 'text-cyan-600 dark:text-cyan-400 bg-cyan-50 dark:bg-cyan-500/10 font-bold'
+                : 'hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-900'
             }`}
           >
             <Compass className="w-3.5 h-3.5" />
@@ -211,7 +211,7 @@ export const Header: React.FC<Props> = ({
           {/* Dark / Light Theme Toggle Button */}
           <button
             onClick={toggleTheme}
-            className="flex items-center gap-1.5 p-2 sm:px-3 sm:py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-xs font-semibold transition shadow-sm text-slate-200"
+            className="flex items-center gap-1.5 p-2 sm:px-3 sm:py-1.5 rounded-xl bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-xs font-semibold transition shadow-sm text-slate-700 dark:text-slate-200 cursor-pointer"
             title={theme === 'dark' ? 'Switch to Light Theme' : 'Switch to Dark Theme'}
             aria-label="Switch between dark and light theme"
           >
@@ -222,8 +222,8 @@ export const Header: React.FC<Props> = ({
               </>
             ) : (
               <>
-                <Moon className="w-4 h-4 text-indigo-500" />
-                <span className="hidden sm:inline text-indigo-600">Dark</span>
+                <Moon className="w-4 h-4 text-slate-700" />
+                <span className="hidden sm:inline text-slate-700">Dark</span>
               </>
             )}
           </button>
@@ -231,17 +231,17 @@ export const Header: React.FC<Props> = ({
           {/* Random Game Button */}
           <button
             onClick={handleRandomGame}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-xs font-semibold text-slate-200 hover:text-cyan-400 transition shadow-sm"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:text-cyan-600 dark:hover:text-cyan-400 transition shadow-sm"
             title="Play a random game"
           >
-            <Dice5 className="w-4 h-4 text-amber-400" />
+            <Dice5 className="w-4 h-4 text-amber-500 dark:text-amber-400" />
             <span className="hidden sm:inline">Random</span>
           </button>
 
           {/* Favorites */}
           <button
             onClick={() => onNavigate('all-games?filter=favorites')}
-            className="relative p-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-rose-400 transition"
+            className="relative p-2 rounded-xl bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:text-rose-500 dark:hover:text-rose-400 transition"
             title="Saved Favorite Games"
           >
             <Heart className="w-4 h-4" />

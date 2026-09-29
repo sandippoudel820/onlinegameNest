@@ -9,7 +9,7 @@ interface ThemeContextType {
 }
 
 const ThemeContext = createContext<ThemeContextType>({
-  theme: 'dark',
+  theme: 'light',
   toggleTheme: () => {},
   setTheme: () => {},
 });
@@ -18,11 +18,11 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [theme, setThemeState] = useState<Theme>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('onlinegamenest_theme');
-      if (saved === 'light' || saved === 'dark') return saved;
-      // Default to dark gaming theme
-      return 'dark';
+      if (saved === 'dark' || saved === 'light') return saved;
+      // Default to clean white/light theme
+      return 'light';
     }
-    return 'dark';
+    return 'light';
   });
 
   useEffect(() => {
